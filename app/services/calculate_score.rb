@@ -6,7 +6,8 @@ class CalculateScore
   end
 
   def initialize(pins)
-    @pins = pins
+    @pins   = pins
+    @frames = []
   end
 
   def call
@@ -14,15 +15,33 @@ class CalculateScore
 
     return score if @pins.blank?
 
-    # scoreの属性への設定例
-    #
-    # score.roll_marks   = ['G','-','1','/','X',nil,'1','1']
-    # score.frame_scores = [0,20,32,34]
-    # score.total        = score.frame_scores.last
+    frame = Frame.new
+    @pins.each do |pin|
+      frame.add_score pin
 
-    # （この辺に実装）
+      if frame.finished?
+        @frames << frame
+        frame = Frame.new(last_frame: @frames.size == 9)
+      end
+    end
 
-    # scoreオブジェクトを返してください
+    score.roll_marks   = roll_marks
+    score.frame_scores = frame_scores
+    score.total        = total
+
     score
+  end
+
+  def total
+    frame_scores.sum
+  end
+
+  def frame_scores
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  end
+
+  def roll_marks
+    v = @frames.map{|frame| frame.roll_marks }
+    v.flatten
   end
 end
